@@ -108,8 +108,8 @@ def create_Art_Therapist():
 
     # Display checkboxes and set binary states
     st.subheader("Select Options:")
-    is_1checked = st.checkbox(options[1])
-    is_2checked = st.checkbox(options[2])
+    is_1checked = st.checkbox(options[0])
+    is_2checked = st.checkbox(options[1])
     if is_1checked:
         EdCredit = 2000
     elif is_2checked:
