@@ -41,11 +41,11 @@ def create_Anasthesia_Technician():
 
         HRExpCalc = 0.75 * (MedicalAssistant + PatientCareTechnician + SurgicalTechnologist + Phlebotomist + PharmacyTechnician)
         HRExp = min(HRExpCalc, 5)
-        st.write(f"High Related Experience: {HRExp}")
+        st.write(f"Highly Related Experience: {HRExp}")
 
         RExpCalc = 0.25 * (MedicalRecordsTechnician + CallCenterRepresentative + PatientServicesAssistant)
         RExp = min(RExpCalc, 2)
-        st.write(f"High Related Experience: {HRExp}")
+        st.write(f"Related Experience: {HRExp}")
 
 
 def create_Athletic_Trainer():
@@ -71,7 +71,7 @@ def create_Athletic_Trainer():
 
         HRExpCalc = SpecialtyExperienceCertification + AdditionalHRE 
         HRExp = min(HRExpCalc, 2)
-        st.write(f"High Related Experience: {HRExp}")
+        st.write(f"Highly Related Experience: {HRExp}")
 
 
 def create_Art_Therapist():
@@ -175,7 +175,7 @@ def create_Audiologist():
         st.write(f"Direct Experience: {DirectExp}")
 
         HRExp = min(0.75*HRExpCalc, 5)
-        st.write(f"High Related Experience: {HRExp}")
+        st.write(f"Highly Related Experience: {HRExp}")
 
 
         st.write(f"Ed Credit: {EdCredit}")
