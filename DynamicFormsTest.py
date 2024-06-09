@@ -185,7 +185,11 @@ def create_Audiologist():
 
 
 # Display the selected form
-if form_type == "Contact Form":
-    create_contact_form()
-elif form_type == "Survey Form":
-    create_survey_form()
+if form_type == "Anasthesia Technician":
+    create_Anasthesia_Technician()
+elif form_type == "Athletic Trainer":
+    create_Athletic_Trainer()
+elif form_type == "Art Therapist":
+    create_Art_Therapist()
+elif form_type == "Audiologist":
+    create_Audiologist()
