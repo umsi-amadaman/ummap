@@ -18,7 +18,7 @@ def create_Anasthesia_Technician():
     st.header("Direct Experience: Enter number of years")
     DirectExp = st.number_input("Anesthesiology Tech", min_value=0, max_value=40, step=1)
 
-    st.header("Highly Related Experience: Enter number of years. 75% credit up to 5 points.")
+    st.header("Highly Related Experience: Enter number of years.")
     MedicalAssistant = st.number_input("Medical Assistant", min_value=0, max_value =40, step=1)
     PatientCareTechnician = st.number_input("Patient Care Technician", min_value=0, max_value =40, step=1)
     SurgicalTechnologist = st.number_input("Surgical Technologist", min_value=0, max_value =40, step=1)
@@ -26,7 +26,7 @@ def create_Anasthesia_Technician():
     Phlebotomist = st.number_input("Phlebotomist", min_value=0, max_value =40, step=1)
     PharmacyTechnician = st.number_input("Pharmacy Technician", min_value=0, max_value =40, step=1)
 
-    st.header("Related Experience: Enter number of years. 25% credit up to 2 points.")
+    st.header("Related Experience: Enter number of years")
     MedicalRecordsTechnician = st.number_input("Medical Records Technician", min_value=0, max_value =40, step=1)
     CallCenterRepresentative = st.number_input("Call Center Representative", min_value=0, max_value =40, step=1)
     PatientServicesAssistant = st.number_input("Patient Services Assistantn", min_value=0, max_value =40, step=1)
@@ -39,13 +39,13 @@ def create_Anasthesia_Technician():
         st.write(f"Job Title: {JobTitle}")
         st.write(f"Direct Experience: {DirectExp}")
 
-        HRExpCalc = 0.75 * (MedicalAssistant + PatientCareTechnician + SurgicalTechnologist + Phlebotomist + PharmacyTechnician)
-        HRExp = min(HRExpCalc, 5)
-        st.write(f"Highly Related Experience: {HRExp}")
+        HRExpCalc = (MedicalAssistant + PatientCareTechnician + SurgicalTechnologist + Phlebotomist + PharmacyTechnician) #*.75
+        #HRExp = min(HRExpCalc, 5)
+        st.write(f"Highly Related Experience: {HRExpCalc}")
 
-        RExpCalc = 0.25 * (MedicalRecordsTechnician + CallCenterRepresentative + PatientServicesAssistant)
-        RExp = min(RExpCalc, 2)
-        st.write(f"Related Experience: {HRExp}")
+        RExpCalc = (MedicalRecordsTechnician + CallCenterRepresentative + PatientServicesAssistant) #*.25
+        #RExp = min(RExpCalc, 2)
+        st.write(f"Related Experience: {RExpCalc}")
 
 
 def create_Athletic_Trainer():
@@ -58,7 +58,7 @@ def create_Athletic_Trainer():
     st.header("Direct Experience: Enter number of years")
     DirectExp = st.number_input("Athletic Trainer", min_value=0, max_value=40, step=1)
 
-    st.header("Additional Experience, Up to 2 points may be applied")
+    st.header("Additional Experience")
     SpecialtyExperienceCertification = st.number_input("Specialty Experience/Certification", min_value=0, max_value =2, step=1)
     AdditionalHRE = st.number_input("Additional Higher or Related Experience", min_value=0, max_value =2, step=1)
 		
@@ -70,8 +70,8 @@ def create_Athletic_Trainer():
         st.write(f"Direct Experience: {DirectExp}")
 
         HRExpCalc = SpecialtyExperienceCertification + AdditionalHRE 
-        HRExp = min(HRExpCalc, 2)
-        st.write(f"Highly Related Experience: {HRExp}")
+        #HRExp = min(HRExpCalc, 2)
+        st.write(f"Highly Related Experience: {HRExpCalc}")
 
 
 def create_Art_Therapist():
@@ -86,14 +86,14 @@ def create_Art_Therapist():
     ATFellowship = st.number_input("AT Fellowship", min_value=0, max_value=40, step=1)
 
 
-    st.header("Highly Related Experience: Enter number of years. 75% credit up to 5.25 points.")
+    st.header("Highly Related Experience: Enter number of years") #. 75% credit up to 5.25 points.")
     ActivityRecreationTherapy = st.number_input("Acivity/Recreation Therapy", min_value=0, max_value =40, step=1)
     ArtTeacher = st.number_input("Art Teacher", min_value=0, max_value =40, step=1)
     Counselor = st.number_input("Child Life/Mental Health Support/Counselor", min_value=0, max_value =40, step=1)
     AdjunctProfessor = st.number_input("AdjunctProfessor", min_value=0, max_value =40, step=1)
 
 
-    st.header("Related Experience: Enter number of years. 50% credit up to 2.5 points.")
+    st.header("Related Experience: Enter number of years") #. 50% credit up to 2.5 points.")
     NonArtFormalTeaching = st.number_input("Non-Art Formal Teaching (schools/child development centers)", min_value=0, max_value =40, step=1)
     ProgramExperience = st.number_input("Program Experience (Paid Position)", min_value=0, max_value =40, step=1)
     DirectPatientCare = st.number_input("Other Healthcare experience (direct patient care)", min_value=0, max_value =40, step=1)
@@ -136,18 +136,18 @@ def create_Art_Therapist():
         DirectExp = ArtTherapist + ATFellowship
         st.write(f"Direct Experience: {DirectExp}")
 
-        HRExpCalc = 0.75 * (ActivityRecreationTherapy + ArtTeacher + Counselor + AdjunctProfessor)
-        HRExp = min(HRExpCalc, 5.25)
-        st.write(f"Highly Related Experience: {HRExp}")
+        HRExpCalc = (ActivityRecreationTherapy + ArtTeacher + Counselor + AdjunctProfessor) # * .75
+        #HRExp = min(HRExpCalc, 5.25)
+        st.write(f"Highly Related Experience: {HRExpCalc}")
 
-        RExpCalc = 0.5 * (NonArtFormalTeaching + ProgramExperience + DirectPatientCare + VisualArtsMultimedia + ResearchPosition)
-        RExp = min(RExpCalc, 2.5)
-        st.write(f"Related Experience: {RExp}")
+        RExpCalc = (NonArtFormalTeaching + ProgramExperience + DirectPatientCare + VisualArtsMultimedia + ResearchPosition) # *.5
+        #RExp = min(RExpCalc, 2.5)
+        st.write(f"Related Experience: {RExpCalc}")
 
         st.write(f"Ed Credit: {EdCredit}")
         CCcalc = (ATRBS + MTBC + CTRS + LLP + LLPC + LMSW) + 0.5*(InfantMassage + FLE + CPXP)
-        CertCredit = min(CCcalc, 1)
-        st.write(f"Certification Credit: {CertCredit}")
+        #CertCredit = min(CCcalc, 1)
+        st.write(f"Certification Credit: {CCcalc}")
 
 def create_Audiologist():
     JobTitle = "Audiologist"
@@ -174,14 +174,14 @@ def create_Audiologist():
 
         st.write(f"Direct Experience: {DirectExp}")
 
-        HRExp = min(0.75*HRExpCalc, 5)
-        st.write(f"Highly Related Experience: {HRExp}")
+        #HRExp = min(0.75*HRExpCalc, 5)
+        st.write(f"Highly Related Experience: {HRExpCalc}")
 
 
         st.write(f"Ed Credit: {EdCredit}")
-        CCcalc = 0.5*(AmericanSign + Deaf)
-        CertCredit = min(CCcalc, 1)
-        st.write(f"Certification Credit: {CertCredit}")
+        #CCcalc = 0.5*(AmericanSign + Deaf)
+        #CertCredit = min(CCcalc, 1)
+        st.write(f"Certification Credit: {EdCredit}")
 
 
 # Display the selected form
