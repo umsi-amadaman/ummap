@@ -21,7 +21,7 @@ st.dataframe(filtered_title)
 
 scale_letter = filtered_title.iloc[0]['Scale']
 
-scale_input = st.text_input(f'Enter your Scale (capital letter) We think it\'s {scale_letter} based on your Title of {selected_value} and Jobe Code {filtered_title.iloc[0]["Job Code"]}', scale_letter)
+scale_input = st.text_input(f'Enter your Scale (a capital letter), we think it\'s {scale_letter} based on your Title of {selected_value} and Jobe Code {filtered_title.iloc[0]["Job Code"]}', scale_letter)
 
 current_salary = 0.0
 try:
