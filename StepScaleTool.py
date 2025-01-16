@@ -25,7 +25,7 @@ scale_input = st.text_input(f'Enter your Scale (capital letter) We think it\'s {
 
 current_salary = 0.0
 try:
-   current_salary = float(st.text_input('Enter amount:', 'Enter a number without commas or $ sign'))
+   current_salary = float(st.number_input('Enter your current salary as a number without commas or $ sign'))
 except ValueError:
    st.error('Please enter a valid number')
 BaseMin_25 = current_salary * 1.06
@@ -46,7 +46,7 @@ st.write(guidelines)
 
 years = 0
 try:
-   years = float(st.text_input('Enter total years in current job title:', 'Enter number of years'))
+   years = float(st.number_input('Enter total years in current job title:', 1))
 except ValueError:
    st.error('Please enter a valid number of years')
 
