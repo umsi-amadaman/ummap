@@ -22,6 +22,7 @@ scale_letter = filtered_title.iloc[0]['Scale']
 
 scale_input = st.text_input('Enter your Scale (capital letter):', f'We think it\'s {scale_letter} based on your Title of {selected_value} and Jobe Code {filtered_title.iloc[0]["Job Code"]}')
 
+current_salary = 0.0
 try:
    current_salary = float(st.text_input('Enter amount:', 'Enter a number without commas or $ sign'))
 except ValueError:
