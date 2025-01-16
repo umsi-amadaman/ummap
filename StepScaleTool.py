@@ -43,6 +43,7 @@ Add up total years in your current UM job title, including:
 
 st.write(guidelines)
 
+years = 0
 try:
    years = float(st.text_input('Enter total years in current job title:', 'Enter number of years'))
 except ValueError:
