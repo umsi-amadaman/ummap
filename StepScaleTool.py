@@ -1,24 +1,40 @@
 import streamlit as st
 import pandas as pd
 
-# Load data
+# Set Streamlit page configuration (optional)
+st.set_page_config(page_title="UMMAP Salary Predictor", layout="wide")
+
+# URLs for data
 STEP_URL = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv'
 TITLE_URL = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv'
 
 @st.cache_data
 def load_data():
-    titles_df = pd.read_csv(TITLE_URL)
-    steps_df = pd.read_csv(STEP_URL)
-    return titles_df, steps_df
+    """
+    Load titles and steps data from CSV URLs.
+    Caches the data to prevent reloading on every interaction.
+    """
+    try:
+        titles_df = pd.read_csv(TITLE_URL)
+        steps_df = pd.read_csv(STEP_URL)
+        return titles_df, steps_df
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return pd.DataFrame(), pd.DataFrame()
 
 titles, steps = load_data()
 
-# Sidebar for Navigation (Optional)
+# Check if data loaded successfully
+if titles.empty or steps.empty:
+    st.stop()
+
+# Sidebar (Optional for better UI)
 st.sidebar.header("UMMAP Salary Predictor")
 
-# Job Title Selection
+# Main Header
 st.header("UMMAP Salary Predictor")
 
+# Job Title Selection
 search_options = titles['Job Title'].unique().tolist()
 selected_value = st.selectbox('Select Your Job Title', search_options)
 
@@ -30,20 +46,29 @@ if not filtered_title.empty:
     st.dataframe(filtered_title)
 
     # Extract scale and job code
-    scale_letter = filtered_title.iloc[0].get('Scale', '')
+    scale_letter = filtered_title.iloc[0].get('Scale', None)
     job_code = filtered_title.iloc[0].get('Job Code', 'N/A')
 
-    # Scale Selection (Restricting to valid options)
-    scale_options = titles['Scale'].unique().tolist()
-    default_scale = scale_letter if scale_letter in scale_options else scale_options[0]
-    scale_input = st.selectbox(
-        'Select Your Scale (Capital Letter)',
-        scale_options,
-        index=scale_options.index(default_scale) if default_scale in scale_options else 0,
-        help=f"We think it's {scale_letter} based on your Title of {selected_value} and Job Code {job_code}"
+    if pd.isna(scale_letter):
+        st.error("Scale information is missing for the selected job title.")
+        st.stop()
+
+    # Informative Message
+    st.info(
+        f"We think it's **{scale_letter}** based on your Title of **{selected_value}** and Job Code **{job_code}**."
     )
 
-    # Current Salary Input
+    # Scale Selection using selectbox to ensure valid input
+    scale_options = sorted(titles['Scale'].dropna().unique().tolist())
+    default_scale_index = scale_options.index(scale_letter) if scale_letter in scale_options else 0
+    scale_input = st.selectbox(
+        'Select Your Scale (Capital Letter)',
+        options=scale_options,
+        index=default_scale_index,
+        help="Select the scale corresponding to your position."
+    )
+
+    # Current Salary Input using number_input for validation
     current_salary = st.number_input(
         'Enter Your Current Salary',
         min_value=0.0,
@@ -54,7 +79,7 @@ if not filtered_title.empty:
 
     BaseMin_25 = current_salary * 1.06
 
-    # Guidelines
+    # Guidelines Section
     guidelines = """
     **Guidelines for Calculating Total Years in Current UM Job Title:**
     - Include all jobs in the same series (Associate, Intermediate, Senior, Clinical Specialist)
@@ -68,7 +93,7 @@ if not filtered_title.empty:
     """
     st.markdown(guidelines)
 
-    # Total Years Input
+    # Total Years Input using number_input for validation
     years = st.number_input(
         'Enter Total Years in Current Job Title',
         min_value=0.0,
@@ -78,29 +103,47 @@ if not filtered_title.empty:
     )
 
     # Validate 'years' against STEPS
-    if 'STEPS' in steps.columns:
-        # Assuming 'STEPS' column contains integer steps, we might need to round or floor the years
-        # For exact match, ensure 'years' is an integer or handle appropriately
-        step_row = steps[steps['STEPS'] == int(years)]
-
-        if not step_row.empty:
-            if scale_input in step_row.columns:
-                alt_base = step_row.iloc[0][scale_input]
-                salary_guess = max(alt_base, BaseMin_25)
-
-                # Find the closest step if exact step not found
-                closest_step_index = (steps['STEPS'] - years).abs().argsort()[:1]
-                closest_row = steps.iloc[closest_step_index]
-                BaseMinStep = closest_row['STEPS'].iloc[0]
-
-                st.success(
-                    f"We estimate your 2025 salary to be ${salary_guess:,.2f} based on a step of {max(years, BaseMinStep)}."
-                )
-            else:
-                st.error(f"Scale '{scale_input}' not found in steps data.")
-        else:
-            st.error(f"No step data found for {years} years. Please enter a valid number of years.")
-    else:
+    if 'STEPS' not in steps.columns:
         st.error("The 'STEPS' column is missing from the steps data.")
+        st.stop()
+
+    # Assuming 'STEPS' represents discrete steps (integers), adjust accordingly
+    # If 'STEPS' represents years, ensure data types align
+    # For this example, we'll assume 'STEPS' are integers
+    step_years = int(years)  # Convert to integer for exact match
+    step_row = steps[steps['STEPS'] == step_years]
+
+    if not step_row.empty:
+        if scale_input in step_row.columns:
+            alt_base = step_row.iloc[0][scale_input]
+
+            # Ensure alt_base is a numeric value
+            try:
+                alt_base = float(alt_base)
+            except (ValueError, TypeError):
+                st.error(f"The value for scale '{scale_input}' is invalid in the steps data.")
+                st.stop()
+
+            salary_guess = max(alt_base, BaseMin_25)
+        else:
+            st.error(f"Scale '{scale_input}' not found in the steps data.")
+            st.stop()
+    else:
+        st.error(f"No step data found for {step_years} years. Please enter a valid number of years.")
+        st.stop()
+
+    # Find the closest step if exact step not found
+    if step_row.empty:
+        # Calculate the closest step
+        closest_step_index = (steps['STEPS'] - step_years).abs().argsort()[:1]
+        closest_row = steps.iloc[closest_step_index]
+        BaseMinStep = closest_row['STEPS'].iloc[0]
+    else:
+        BaseMinStep = step_years
+
+    # Display the estimated salary
+    st.success(
+        f"We estimate your 2025 salary to be **${salary_guess:,.2f}** based on a step of **{BaseMinStep}**."
+    )
 else:
     st.error("Selected job title does not have corresponding details.")
