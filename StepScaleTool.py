@@ -1,6 +1,52 @@
 
 import streamlit as st
 import pandas as pd
+import datetime as datetime
+
+# Initialize session state
+if 'confirmed' not in st.session_state:
+    st.session_state.confirmed = False
+   
+def submit_to_google_form(phone_number):
+    FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdgcNhzJYb91AjLijmKbrkeDQE7szinOh0F5jZfJcc_cwd-CA/formResponse"
+    form_data = {
+        'entry.526853801': phone_number
+    }
+    
+    try:
+        response = requests.post(FORM_URL, data=form_data)
+        return response.ok
+    except:
+        return False
+
+
+
+Roster = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAProster.csv'
+
+roster = pd.read_csv(Roster)
+
+
+
+IDinput = st.number_input(f'Please enter your Employee ID number')
+
+IDrow = roster[roster['EMPLID'] == IDinput]
+
+
+st.write(f'OK, great. The data we have from the University says that you are a
+{IDrow['JOBCODE_DESCR'].iloc[0]}, that you started work in that title on {IDrow['MIN_APPT_START_DATE'].iloc[0]} and your
+current full-time salary rate is ${IDrow[ANNUAL_FTR].iloc[0]}. Is all that correct?')
+
+if st.button("Confirm"):
+    st.session_state.confirmed = True
+    st.write("Thank you for confirming!")
+
+# In your Streamlit app
+if not st.session_state.confirmed:
+    phone_number = st.text_input("What's the best phone number for you?")
+    if phone_number:
+        if submit_to_google_form(phone_number):
+            st.success("Thank you! We'll contact you soon.")
+
 
 STEP = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv'
 TITLE = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv'
