@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import requests
 
-# Initialize session state variables
+# Initialize all session state variables
 if 'page' not in st.session_state:
     st.session_state.page = 1
 if 'confirmed' not in st.session_state:
@@ -16,6 +16,8 @@ if 'earliest_date' not in st.session_state:
     st.session_state.earliest_date = None
 if 'external_experience' not in st.session_state:
     st.session_state.external_experience = None
+if 'IDrow' not in st.session_state:
+    st.session_state.IDrow = None
 
 def submit_to_google_form(phone_number):
     FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdgcNhzJYb91AjLijmKbrkeDQE7szinOh0F5jZfJcc_cwd-CA/formResponse"
@@ -29,13 +31,18 @@ def submit_to_google_form(phone_number):
         return False
 
 # Load data
-Roster = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAProster.csv'
-STEP = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv'
-TITLE = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv'
+@st.cache_data
+def load_data():
+    Roster = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAProster.csv'
+    STEP = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv'
+    TITLE = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv'
+    
+    roster = pd.read_csv(Roster)
+    titles = pd.read_csv(TITLE)
+    steps = pd.read_csv(STEP)
+    return roster, titles, steps
 
-roster = pd.read_csv(Roster)
-titles = pd.read_csv(TITLE)
-steps = pd.read_csv(STEP)
+roster, titles, steps = load_data()
 
 # Main app logic with pages
 if st.session_state.page == 1:
@@ -46,9 +53,10 @@ if st.session_state.page == 1:
         try:
             IDrow = roster[roster['EMPLID'] == IDinput]
             if not IDrow.empty:
+                st.session_state.IDrow = IDrow  # Store in session state
                 st.write(f"OK, great. The data we have from the University says that you are a {IDrow['JOBCODE_DESCR'].iloc[0]}, "
                         f"that you started work in that title on {IDrow['MIN_APPT_START_DATE'].iloc[0]} and your "
-                        f"current full-time salary rate is ${IDrow['ANNUAL_FTR'].iloc[0]}. Is all that correct?")
+                        f"current full-time salary rate is ${IDrow['ANNUAL_FTR'].iloc[0]:,.2f}. Is all that correct?")
                 
                 col1, col2 = st.columns(2)
                 with col1:
@@ -76,20 +84,26 @@ elif st.session_state.page == 'error':
                 st.rerun()
 
 elif st.session_state.page == 2:
-    start_date = IDrow['MIN_APPT_START_DATE'].iloc[0]  # Get this from your data
-    st.write(f"Ok, so the next question is whether you have experience IN YOUR CURRENT JOB TITLE AT UM before {start_date}. "
-             f"I.e. did you have a job in the same series, like Associate, Intermediate, Senior, Clinical Specialist, etc.?")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Yes"):
-            st.session_state.prior_experience = True
-            st.session_state.page = 3
-            st.rerun()
-    with col2:
-        if st.button("No"):
-            st.session_state.prior_experience = False
-            st.session_state.page = 4
+    if st.session_state.IDrow is not None:
+        start_date = st.session_state.IDrow['MIN_APPT_START_DATE'].iloc[0]
+        st.write(f"Ok, so the next question is whether you have experience IN YOUR CURRENT JOB TITLE AT UM before {start_date}. "
+                f"I.e. did you have a job in the same series, like Associate, Intermediate, Senior, Clinical Specialist, etc.?")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Yes"):
+                st.session_state.prior_experience = True
+                st.session_state.page = 3
+                st.rerun()
+        with col2:
+            if st.button("No"):
+                st.session_state.prior_experience = False
+                st.session_state.page = 4
+                st.rerun()
+    else:
+        st.error("No employee data found. Please go back and enter your ID.")
+        if st.button("Go back"):
+            st.session_state.page = 1
             st.rerun()
 
 elif st.session_state.page == 3:
@@ -108,33 +122,46 @@ elif st.session_state.page == 4:
         st.rerun()
 
 elif st.session_state.page == 5:
-    # Calculate salary increase (You'll need to implement your specific logic here)
-    job_title = IDrow['JOBCODE_DESCR'].iloc[0]
-    scale = "X"  # Get this from your data
-    new_salary = IDrow['ANNUAL_FTR'].iloc[0] * 1.06  # Example calculation
-    increase_percent = 6
+    if st.session_state.IDrow is not None:
+        # Calculate salary increase
+        job_title = st.session_state.IDrow['JOBCODE_DESCR'].iloc[0]
+        current_salary = st.session_state.IDrow['ANNUAL_FTR'].iloc[0]
+        
+        # Get scale from titles dataframe
+        job_code = st.session_state.IDrow['JOBCODE'].iloc[0]
+        scale_row = titles[titles['Job Code'] == job_code]
+        scale = scale_row['Scale'].iloc[0] if not scale_row.empty else "Unknown"
+        
+        # Calculate new salary (6% increase)
+        new_salary = current_salary * 1.06
+        increase_percent = 6
 
-    st.write(f"Ok, great. What I'm seeing is that since you're a {job_title}, you're on scale {scale} "
-             f"and that your salary will increase to ${new_salary:.2f} in the first year. "
-             f"That's retroactive to November 1 and it's an increase of {increase_percent}%.")
-    
-    st.write("Now for year two, do you have time in the same job NOT at UM--or do you have experience in a "
-             "related job that we didn't count, either at UM or not at UM?")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Yes"):
-            st.session_state.page = 6
-            st.rerun()
-    with col2:
-        if st.button("No"):
-            st.session_state.page = 7
+        st.write(f"Ok, great. What I'm seeing is that since you're a {job_title}, you're on scale {scale} "
+                f"and that your salary will increase to ${new_salary:,.2f} in the first year. "
+                f"That's retroactive to November 1 and it's an increase of {increase_percent}%.")
+        
+        st.write("Now for year two, do you have time in the same job NOT at UM--or do you have experience in a "
+                "related job that we didn't count, either at UM or not at UM?")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Yes"):
+                st.session_state.page = 6
+                st.rerun()
+        with col2:
+            if st.button("No"):
+                st.session_state.page = 7
+                st.rerun()
+    else:
+        st.error("No employee data found. Please go back and enter your ID.")
+        if st.button("Go back"):
+            st.session_state.page = 1
             st.rerun()
 
 elif st.session_state.page == 6:
     st.write("OK, what's the experience?")
     experience = st.text_area("Please describe your experience:")
-    if st.button("Submit"):
+    if experience:
         st.session_state.external_experience = experience
         st.write("So what I can tell you is that that could make a difference in the second year, "
                 "but it depends on our negotiations with management over what specific jobs come with what kind of credit. "
@@ -144,15 +171,34 @@ elif st.session_state.page == 6:
             st.rerun()
 
 elif st.session_state.page == 7:
-    st.write("OK, that means you'll get the standard raise of 3% plus 1.25% in the second year "
-             "and 2.25% plus 1.25% in the third year.")
-    if st.button("Continue"):
-        st.session_state.page = 'end'
-        st.rerun()
+    if st.session_state.IDrow is not None:
+        current_salary = st.session_state.IDrow['ANNUAL_FTR'].iloc[0]
+        # Calculate future increases
+        year2_increase = current_salary * (1.03 + 0.0125)
+        year3_increase = year2_increase * (1.0225 + 0.0125)
+        
+        st.write("OK, that means you'll get the standard raise of 3% plus 1.25% in the second year "
+                f"(approximately ${year2_increase:,.2f}) "
+                "and 2.25% plus 1.25% in the third year "
+                f"(approximately ${year3_increase:,.2f}).")
+        if st.button("Continue"):
+            st.session_state.page = 'end'
+            st.rerun()
+    else:
+        st.error("No employee data found. Please go back and enter your ID.")
+        if st.button("Go back"):
+            st.session_state.page = 1
+            st.rerun()
 
 elif st.session_state.page == 'end':
     st.write("Great, nice to meet you!")
     if st.button("Start Over"):
         for key in st.session_state.keys():
             del st.session_state[key]
+        st.rerun()
+
+# Add a back button on all pages except the first and last
+if st.session_state.page not in [1, 'end']:
+    if st.button("← Go Back"):
+        st.session_state.page -= 1
         st.rerun()
