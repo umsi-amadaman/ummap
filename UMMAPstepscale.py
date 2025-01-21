@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import requests
 
-# Initialize all session state variables
+# Initialize session state variables
 if 'page' not in st.session_state:
     st.session_state.page = 1
 if 'confirmed' not in st.session_state:
@@ -100,11 +100,6 @@ elif st.session_state.page == 2:
                 st.session_state.prior_experience = False
                 st.session_state.page = 4
                 st.rerun()
-    else:
-        st.error("No employee data found. Please go back and enter your ID.")
-        if st.button("Go back"):
-            st.session_state.page = 1
-            st.rerun()
 
 elif st.session_state.page == 3:
     st.write("OK, what would be the earliest date you started working at UM including that experience?")
@@ -127,9 +122,9 @@ elif st.session_state.page == 5:
         job_title = st.session_state.IDrow['JOBCODE_DESCR'].iloc[0]
         current_salary = st.session_state.IDrow['ANNUAL_FTR'].iloc[0]
         
-        # Get scale from titles dataframe
-        job_code = st.session_state.IDrow['JOBCODE'].iloc[0]
-        scale_row = titles[titles['Job Code'] == job_code]
+        # Get scale from job title
+        job_code_str = st.session_state.IDrow['JOBCODE_DESCR'].iloc[0]
+        scale_row = titles[titles['Job Title'] == job_code_str]
         scale = scale_row['Scale'].iloc[0] if not scale_row.empty else "Unknown"
         
         # Calculate new salary (6% increase)
@@ -152,11 +147,6 @@ elif st.session_state.page == 5:
             if st.button("No"):
                 st.session_state.page = 7
                 st.rerun()
-    else:
-        st.error("No employee data found. Please go back and enter your ID.")
-        if st.button("Go back"):
-            st.session_state.page = 1
-            st.rerun()
 
 elif st.session_state.page == 6:
     st.write("OK, what's the experience?")
@@ -184,21 +174,10 @@ elif st.session_state.page == 7:
         if st.button("Continue"):
             st.session_state.page = 'end'
             st.rerun()
-    else:
-        st.error("No employee data found. Please go back and enter your ID.")
-        if st.button("Go back"):
-            st.session_state.page = 1
-            st.rerun()
 
 elif st.session_state.page == 'end':
     st.write("Great, nice to meet you!")
     if st.button("Start Over"):
         for key in st.session_state.keys():
             del st.session_state[key]
-        st.rerun()
-
-# Add a back button on all pages except the first and last
-if st.session_state.page not in [1, 'end']:
-    if st.button("← Go Back"):
-        st.session_state.page -= 1
         st.rerun()
