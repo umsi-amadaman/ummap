@@ -167,10 +167,10 @@ elif st.session_state.page == 7:
         year2_increase = current_salary * (1.03 + 0.0125)
         year3_increase = year2_increase * (1.0225 + 0.0125)
         
-        st.write("OK, that means you'll get the standard raise of 3% plus 1.25% in the second year "
-                f"(approximately ${year2_increase:,.2f}) "
-                "and 2.25% plus 1.25% in the third year "
-                f"(approximately ${year3_increase:,.2f}).")
+        st.write("OK, that means you'll get the standard raise of:")
+        st.write(f"• 3% plus 1.25% in the second year (approximately ${year2_increase:,.2f})")
+        st.write(f"• 2.25% plus 1.25% in the third year (approximately ${year3_increase:,.2f})")
+        
         if st.button("Continue"):
             st.session_state.page = 'end'
             st.rerun()
