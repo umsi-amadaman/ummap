@@ -30,7 +30,7 @@ def load_data():
         'roster': 'UMMAProster.csv',
         'titles': 'UMMAPtitleScale.csv',
         'steps': 'UMMAPpayscale.csv',
-        'full': 'UMMAPfull.csv'
+        'full': 'ummapfull.csv'
     }
     return {k: pd.read_csv(f"{base_url}{v}") for k, v in files.items()}
 
