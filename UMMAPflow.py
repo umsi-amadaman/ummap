@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import datetime
 import requests
 from datetime import datetime
 
@@ -49,8 +48,6 @@ def calculate_salary_increase():
    increase = ((new_salary - currentsalary) / currentsalary) * 100
    
    return scale, new_salary, increase
-
-data = load_data()
 
 # Main app logic
 if st.session_state.page == 1:
@@ -145,9 +142,7 @@ elif st.session_state.page == 4:
 
 elif st.session_state.page == 5:
     if st.session_state.IDrow is not None:
-        scale, new_salary, increase_percent = calculate_salary_increase(
-            st.session_state.IDrow, data['titles'], data['steps']
-        )
+        scale, new_salary, increase_percent = calculate_salary_increase()
         
         if None not in (scale, new_salary, increase_percent):
             st.write(f"Since you're a {st.session_state.IDrow['JOBCODE_DESCR'].iloc[0]}, "
