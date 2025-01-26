@@ -53,7 +53,7 @@ def calculate_salary_increase():
 # Main app logic
 if st.session_state.page == 1:
     st.header("Employee Information Verification")
-    IDinput = st.text_input('Can I get your employee ID number?', min_value=0)
+    IDinput = st.text_input('Can I get your employee ID number?')
     
     if IDinput:
         IDrow = full[full['EmplID'] == IDinput]
