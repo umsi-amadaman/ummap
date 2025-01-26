@@ -32,8 +32,9 @@ full = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/ummapfull.cs
 def calculate_salary_increase():
    jobtitle = st.session_state.IDrow['Jobcode Descr'].iloc[0]
    currentsalary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
-   
-   if st.session_state.earliest_date:
+   if st.session_state.corrected_date:
+       job_entry = pd.to_datetime(st.session_state.corrected_date)
+   elif st.session_state.earliest_date:
        job_entry = pd.to_datetime(st.session_state.earliest_date)
    else:
        job_entry = pd.to_datetime(st.session_state.IDrow['Job Entry Dt'].iloc[0])
