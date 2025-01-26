@@ -36,13 +36,15 @@ def load_data():
     Roster = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAProster.csv'
     STEP = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv'
     TITLE = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv'
+    Full = 'https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPfull.csv'
     
     roster = pd.read_csv(Roster)
     titles = pd.read_csv(TITLE)
     steps = pd.read_csv(STEP)
-    return roster, titles, steps
+    full = pd.read_csv(Full)
+    return roster, titles, steps, full
 
-roster, titles, steps = load_data()
+roster, titles, steps, full = load_data()
 
 # Main app logic with pages
 if st.session_state.page == 1:
@@ -51,12 +53,10 @@ if st.session_state.page == 1:
     
     if IDinput > 0:
         try:
-            IDrow = roster[roster['EMPLID'] == IDinput]
+            IDrow = full[full['Emplid'] == IDinput]
             if not IDrow.empty:
                 st.session_state.IDrow = IDrow  # Store in session state
-                st.write(f"OK, great. The data we have from the University says that you are a {IDrow['JOBCODE_DESCR'].iloc[0]}, "
-                        f"that you started work in that title on {IDrow['MIN_APPT_START_DATE'].iloc[0]} and your "
-                        f"current full-time salary rate is ${IDrow['ANNUAL_FTR'].iloc[0]:,.2f}. Is all that correct?")
+                st.write(f"OK, great. The data we have from the University says that your name is {IDrow['First Name'].iloc[0]} {IDrow['First Name'].iloc[0]}, are a {IDrow['Jobcode Descr'].iloc[0]}, that you started work on that you started work in that title on {IDrow['Job Entry Dt'].iloc[0]}, and that your current full-time salary rate is ${IDrow['Comp Annual Rt'].iloc[0]:,.2f}. Is all that correct?")
                 
                 col1, col2 = st.columns(2)
                 with col1:
