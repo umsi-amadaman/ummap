@@ -177,7 +177,7 @@ elif st.session_state.page == 6:
 
 elif st.session_state.page == 7:
     current_salary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
-    year2_increase = current_salary * 1.0425  # 3% + 1.25%
+    year2_increase = new_salary * 1.0425  # 3% + 1.25%
     year3_increase = year2_increase * 1.035   # 2.25% + 1.25%
     
     st.write("You'll get these standard raises:")
