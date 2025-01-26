@@ -145,6 +145,7 @@ elif st.session_state.page == 4:
 elif st.session_state.page == 5:
     if st.session_state.IDrow is not None:
         scale, new_salary, increase_percent = calculate_salary_increase()
+        st.session_state.new_salary = new_salary
         
         if None not in (scale, new_salary, increase_percent):
             st.write(f"Since you're a {st.session_state.IDrow['Jobcode Descr'].iloc[0]}, "
@@ -177,7 +178,7 @@ elif st.session_state.page == 6:
 
 elif st.session_state.page == 7:
     current_salary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
-    year2_increase = new_salary * 1.0425  # 3% + 1.25%
+    year2_increase = st.session_state.new_salary * 1.0425  # 3% + 1.25%
     year3_increase = year2_increase * 1.035   # 2.25% + 1.25%
     
     st.write("You'll get these standard raises:")
