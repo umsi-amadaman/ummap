@@ -31,7 +31,7 @@ full = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/ummapfull.cs
 
 
 def calculate_salary_increase():
-   jobtitle = st.session_state.IDrow['Jobcode Descr'].iloc[0]
+   jobcode = st.session_state.IDrow['Jobcode'].iloc[0]
    currentsalary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
    if st.session_state.corrected_date:
        job_entry = pd.to_datetime(st.session_state.corrected_date)
@@ -40,7 +40,7 @@ def calculate_salary_increase():
    else:
        job_entry = pd.to_datetime(st.session_state.IDrow['Job Entry Dt'].iloc[0])
    
-   scale = titles.loc[titles['Job Title'] == jobtitle, 'Scale'].iloc[0]
+   scale = titles.loc[titles['Job Code'] == jobcode, 'Scale'].iloc[0]
    
    years = (datetime.now() - job_entry).days / 365.25
    step_salary = steps[scale].iloc[int(years)]
