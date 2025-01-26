@@ -10,6 +10,7 @@ if 'page' not in st.session_state:
         'IDrow': None,
         'prior_experience': None,
         'earliest_date': None,
+        'corrected_date': None,
         'external_experience': None,
         'phone_number': None
     })
