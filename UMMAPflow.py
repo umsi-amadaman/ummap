@@ -23,58 +23,47 @@ def submit_to_google_form(phone_number):
     except:
         return False
 
-@st.cache_data
-def load_data():
-    base_url = "https://github.com/umsi-amadaman/UMMAP/raw/main/"
-    files = {
-        'roster': 'UMMAProster.csv',
-        'titles': 'UMMAPtitleScale.csv',
-        'steps': 'UMMAPpayscale.csv',
-        'full': 'ummapfull.csv'
-    }
-    return {k: pd.read_csv(f"{base_url}{v}") for k, v in files.items()}
 
-def calculate_salary_increase(row, titles, steps):
-    job_title = row['JOBCODE_DESCR'].iloc[0]
-    current_salary = row['ANNUAL_FTR'].iloc[0]
-    
-    # Get scale from job title
-    scale_row = titles[titles['Job Title'] == job_title]
-    if scale_row.empty:
-        return None, None, None
-        
-    scale = scale_row['Scale'].iloc[0]
-    
-    # Calculate years on job
-    job_entry_date = pd.to_datetime(row['JOB_ENTRY_DT'].iloc[0])
-    years_on_job = (datetime(2025, 2, 15) - job_entry_date).days / 365.25
-    
-    # Calculate 6% increase
-    min_increase = current_salary * 1.06
-    
-    # Get step based on years
-    step_salary = steps[steps['Scale'] == scale].iloc[int(years_on_job)]['Salary']
-    
-    # Use higher of the two
-    new_salary = max(min_increase, step_salary)
-    increase_percent = ((new_salary - current_salary) / current_salary) * 100
-    
-    return scale, new_salary, increase_percent
+roster = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAProster.csv')
+titles = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv')
+steps = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv')
+full = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/ummapfull.csv')
+
+
+def calculate_salary_increase():
+   jobtitle = st.session_state.IDrow['Jobcode Descr'].iloc[0]
+   currentsalary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
+   
+   if st.session_state.earliest_date:
+       job_entry = pd.to_datetime(st.session_state.earliest_date)
+   else:
+       job_entry = pd.to_datetime(st.session_state.IDrow['Job Entry Dt'].iloc[0])
+   
+   scale = titles.loc[titles['Job Title'] == jobtitle, 'Scale'].iloc[0]
+   
+   years = (datetime.now() - job_entry).days / 365.25
+   step_salary = steps[scale].iloc[int(years)]
+   min_salary = currentsalary * 1.06
+   
+   new_salary = max(step_salary, min_salary)
+   increase = ((new_salary - currentsalary) / currentsalary) * 100
+   
+   return scale, new_salary, increase
 
 data = load_data()
 
 # Main app logic
 if st.session_state.page == 1:
     st.header("Employee Information Verification")
-    IDinput = st.number_input('Can I get your employee ID number?', min_value=0)
+    IDinput = st.text_input('Can I get your employee ID number?', min_value=0)
     
-    if IDinput > 0:
-        IDrow = data['full'][data['full']['Emplid'] == IDinput]
+    if IDinput:
+        IDrow = full[full['EmplID'] == IDinput]
         if not IDrow.empty:
             st.session_state.IDrow = IDrow
             st.write(f"OK, great. The data we have from the University says that your name is {IDrow['First Name'].iloc[0]} {IDrow['Last Name'].iloc[0]}, "
-                    f"are a {IDrow['JOBCODE_DESCR'].iloc[0]}, that you started work on {IDrow['JOB_ENTRY_DT'].iloc[0]}, "
-                    f"and that your current full-time salary rate is ${IDrow['ANNUAL_FTR'].iloc[0]:,.2f}. Is all that correct?")
+                    f"are a {IDrow['Jobcode Descr'].iloc[0]}, that you started work on {IDrow['Job Entry Dt'].iloc[0]}, "
+                    f"and that your current full-time salary rate is ${IDrow['Comp Annual Rt'].iloc[0]:,.2f}. Is all that correct?")
             
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -100,7 +89,7 @@ elif st.session_state.page == 'date_correction':
     st.write("OK, what should the correct date be?")
     corrected_date = st.date_input("Enter correct date", min_value=datetime.date(1950, 1, 1))
     if st.button("Continue"):
-        st.session_state.IDrow['JOB_ENTRY_DT'] = corrected_date
+        st.session_state.corrected_date = corrected_date
         st.session_state.page = 2
         st.rerun()
 
@@ -115,16 +104,20 @@ elif st.session_state.page == 'error':
             st.rerun()
 
 elif st.session_state.page == 2:
-    if 'JOBCODE_DESCR' in st.session_state.IDrow.columns and 'Social Worker' in st.session_state.IDrow['JOBCODE_DESCR'].iloc[0]:
-        st.write("I see you're a social worker. Are you on the clinical ladder at all?")
-        if st.button("Yes"):
-            st.session_state.page = 'error'
-            st.rerun()
-        elif st.button("No"):
-            st.session_state.page = 3
-            st.rerun()
+   if 'Jobcode Descr' in st.session_state.IDrow.columns and 'Social Worker' in st.session_state.IDrow['Jobcode Descr'].iloc[0]:
+       st.write("I see you're a social worker. Are you on the clinical ladder at all?")
+       if st.button("Yes"):
+           st.write("Ok, that makes things a little tricky. I'll have someone get back to you.")
+           phone_number = st.text_input("What's a good phone number?")
+           if phone_number and submit_to_google_form(phone_number):
+               st.success("Thank you! We'll contact you soon.")
+               st.session_state.clear()
+               st.rerun()
+       elif st.button("No"):
+           st.session_state.page = 3 
+           st.rerun()
     else:
-        st.write(f"Do you have experience IN YOUR CURRENT JOB TITLE AT UM before {st.session_state.IDrow['JOB_ENTRY_DT'].iloc[0]}?")
+        st.write(f"Do you have experience IN YOUR CURRENT JOB TITLE AT UM before {st.session_state.IDrow['Job Entry Dt'].iloc[0]}?")
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Yes"):
