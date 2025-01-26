@@ -127,7 +127,7 @@ elif st.session_state.page == 2:
 
 elif st.session_state.page == 3:
     st.write("What would be the earliest date you started working at UM including that experience?")
-    earliest_date = st.date_input("Enter date", min_value=datetime.date(1950, 1, 1))
+    earliest_date = st.date_input("Enter date", min_value=date(1950, 1, 1))
     if st.button("Continue"):
         st.session_state.earliest_date = earliest_date
         st.session_state.page = 4
