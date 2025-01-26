@@ -145,7 +145,7 @@ elif st.session_state.page == 5:
         scale, new_salary, increase_percent = calculate_salary_increase()
         
         if None not in (scale, new_salary, increase_percent):
-            st.write(f"Since you're a {st.session_state.IDrow['JOBCODE_DESCR'].iloc[0]}, "
+            st.write(f"Since you're a {st.session_state.IDrow['Jobcode Descr'].iloc[0]}, "
                     f"you're on scale {scale}. Your salary will increase to ${new_salary:,.2f} "
                     f"in the first year. That's retroactive to November 1 and it's an increase of {increase_percent:.1f}%.")
             
