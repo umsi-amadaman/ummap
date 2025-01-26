@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
-from datetime import datetime
+from datetime import datetime, date
 
 # Initialize session state
 if 'page' not in st.session_state:
@@ -84,7 +84,7 @@ if st.session_state.page == 1:
 
 elif st.session_state.page == 'date_correction':
     st.write("OK, what should the correct date be?")
-    corrected_date = st.date_input("Enter correct date", min_value=datetime.date(1950, 1, 1))
+    corrected_date = st.date_input("Enter correct date", min_value=date(1950, 1, 1))
     if st.button("Continue"):
         st.session_state.corrected_date = corrected_date
         st.session_state.page = 2
@@ -113,7 +113,7 @@ elif st.session_state.page == 2:
        elif st.button("No"):
            st.session_state.page = 3 
            st.rerun()
-    else:
+   else:
         st.write(f"Do you have experience IN YOUR CURRENT JOB TITLE AT UM before {st.session_state.IDrow['Job Entry Dt'].iloc[0]}?")
         col1, col2 = st.columns(2)
         with col1:
@@ -174,7 +174,7 @@ elif st.session_state.page == 6:
             st.rerun()
 
 elif st.session_state.page == 7:
-    current_salary = st.session_state.IDrow['ANNUAL_FTR'].iloc[0]
+    current_salary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
     year2_increase = current_salary * 1.0425  # 3% + 1.25%
     year3_increase = year2_increase * 1.035   # 2.25% + 1.25%
     
