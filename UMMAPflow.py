@@ -26,7 +26,7 @@ def submit_to_google_form(phone_number):
 roster = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAProster.csv')
 titles = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPtitleScale.csv')
 steps = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/UMMAPpayscale.csv')
-full = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/ummapfull.csv')
+full = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/ummapfull.csv', dtype={'EmplID': str})
 
 
 def calculate_salary_increase():
@@ -56,7 +56,7 @@ if st.session_state.page == 1:
     IDinput = st.text_input('Can I get your employee ID number?')
     
     if IDinput:
-        IDrow = full[full['EmplID'] == IDinput]
+        IDrow = full[full['EmplID'].astype(str) == IDinput]
         if not IDrow.empty:
             st.session_state.IDrow = IDrow
             st.write(f"OK, great. The data we have from the University says that your name is {IDrow['First Name'].iloc[0]} {IDrow['Last Name'].iloc[0]}, "
