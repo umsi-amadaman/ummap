@@ -75,11 +75,11 @@ if st.session_state.page == 1:
                     st.session_state.page = 'date_correction'
                     st.rerun()
             with col3:
-                if st.button("Other Information Wrong"):
+                if st.button("Name, Job Title or Salary is wrong"):
                     st.session_state.page = 'error'
                     st.rerun()
         else:
-            st.error("ID number not found. I'll have someone get back to you.")
+            st.error("OK, for some reason that ID number isn’t showing up. I’ll have someone get back to you.")
             phone_number = st.text_input("What's a good phone number?")
             if phone_number and submit_to_google_form(phone_number):
                 st.session_state.phone_number = phone_number
@@ -94,7 +94,7 @@ elif st.session_state.page == 'date_correction':
         st.rerun()
 
 elif st.session_state.page == 'error':
-    st.write("That means there's an error in the data we got from management.")
+    st.write("Ok, that means there's an error in the data we got from management. I'll have someone get back to you.")
     phone_number = st.text_input("What's a good phone number?")
     if phone_number and submit_to_google_form(phone_number):
         st.session_state.phone_number = phone_number
@@ -117,7 +117,26 @@ elif st.session_state.page == 2:
            st.session_state.page = 3 
            st.rerun()
    else:
-        st.write(f"Do you have experience IN YOUR CURRENT JOB TITLE AT UM before {st.session_state.IDrow['Job Entry Dt'].iloc[0]}?")
+        st.write(
+    f"""
+Ok, so the next question is whether you have experience IN YOUR CURRENT JOB TITLE AT UM 
+before {st.session_state.IDrow['Job Entry Dt'].iloc[0]}. i.e. did you have a job in the same series, 
+like Associate, Intermediate, Senior, Clinical Specialist, etc.?
+
+Or do any of the following apply?
+
+- Any Non-Registered job experience will count for the relevant job title when certified.
+- Mammography Technologist experience will count for Mammography Dual Technologist.
+- Orthotist, Prosthetist, and Orthotist and Prosthetist experience will all count for each other.
+- All ultrasound technologist, vascular ultrasound technologist, msk technologist, and cardiac 
+  sonographer non-invasive technologist experience will count for each other.
+- Allied Health Technical Coordinator experience while performing as Polysomnographic 
+  Technician (or lead) will count towards Polysomnographic experience.
+- Histology Technician experience will count for Medical Technologists or Medical 
+  Technologist Specialist.
+"""
+)
+
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Yes"):
