@@ -119,9 +119,8 @@ elif st.session_state.page == 2:
    else:
         st.write(
     f"""
-Ok, so the next question is whether you have experience IN YOUR CURRENT JOB TITLE AT UM 
-before {st.session_state.IDrow['Job Entry Dt'].iloc[0]}. i.e. did you have a job in the same series, 
-like Associate, Intermediate, Senior, Clinical Specialist, etc.?
+Ok, so the next question is whether you have experience before {st.session_state.IDrow['Job Entry Dt'].iloc[0]} in your current job SERIES AT UM 
+, like Associate, Intermediate, Senior, Clinical Specialist, etc.?
 
 Or do any of the following apply?
 
