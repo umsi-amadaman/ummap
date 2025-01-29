@@ -31,26 +31,52 @@ full = pd.read_csv('https://github.com/umsi-amadaman/UMMAP/raw/main/ummapfull.cs
 
 
 def calculate_salary_increase():
-   jobcode = str(st.session_state.IDrow['Jobcode'].iloc[0])
-   #st.write(jobcode, type(jobcode))
-   currentsalary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
-   if st.session_state.corrected_date:
-       job_entry = pd.to_datetime(st.session_state.corrected_date)
-   elif st.session_state.earliest_date:
-       job_entry = pd.to_datetime(st.session_state.earliest_date)
-   else:
-       job_entry = pd.to_datetime(st.session_state.IDrow['Job Entry Dt'].iloc[0])
-   
-   scale = titles.loc[titles['Job Code'] == jobcode, 'Scale'].iloc[0]
-   
-   years = (datetime.now() - job_entry).days / 365.25
-   step_salary = steps[scale].iloc[int(years)]
-   min_salary = currentsalary * 1.06
-   
-   new_salary = max(step_salary, min_salary)
-   increase = ((new_salary - currentsalary) / currentsalary) * 100
-   
-   return scale, new_salary, increase
+    jobcode = str(st.session_state.IDrow['Jobcode'].iloc[0])
+    currentsalary = st.session_state.IDrow['Comp Annual Rt'].iloc[0]
+    
+    # Get job entry date
+    if st.session_state.corrected_date:
+        job_entry = pd.to_datetime(st.session_state.corrected_date)
+    elif st.session_state.earliest_date:
+        job_entry = pd.to_datetime(st.session_state.earliest_date)
+    else:
+        job_entry = pd.to_datetime(st.session_state.IDrow['Job Entry Dt'].iloc[0])
+    
+    # Get the salary scale (A, B, C, etc.) for this job code
+    scale = titles.loc[titles['Job Code'] == jobcode, 'Scale'].iloc[0]
+    
+    # Calculate years of experience (capped at 30)
+    years = (datetime.now() - job_entry).days / 365.25
+    years_step = min(int(years), 30)  # Cap at 30 years for step lookup
+    
+    # Get minimum salary (6% increase)
+    min_salary = currentsalary * 1.06
+    
+    # Get the step 30 salary for comparison
+    max_step_salary = steps[scale].iloc[30]
+    
+    # If minimum salary exceeds step 30 salary, use the 6% increase
+    if min_salary > max_step_salary:
+        new_salary = min_salary
+    else:
+        # Get the salary for their years of experience from the steps table
+        years_salary = steps[scale].iloc[years_step]
+        
+        # Find the first step that exceeds the minimum salary
+        scale_column = steps[scale]
+        qualifying_steps = scale_column[scale_column >= min_salary]
+        if not qualifying_steps.empty:
+            step_salary = qualifying_steps.iloc[0]
+        else:
+            step_salary = scale_column.iloc[30]  # Use step 30 if none exceed minimum
+        
+        # Take the larger of the step-based salaries
+        new_salary = max(step_salary, years_salary)
+    
+    # Calculate percentage increase
+    increase = ((new_salary - currentsalary) / currentsalary) * 100
+    
+    return scale, new_salary, increase
 
 # Main app logic
 if st.session_state.page == 1:
